@@ -50,19 +50,19 @@ float fTheta;
 
 int main()
 {
-    system("mode con cols=96 lines=24");        // Определение размера окошка
-    system("title Имитатор ssd1306");
-    CONSOLE_CURSOR_INFO inf = { 0 };            // Отключение курсора
-    inf.dwSize = 1;                             
-    inf.bVisible = false;                        
-    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &inf);
-    HWND myConsole = GetConsoleWindow();        // 3:30 "its gonna get your main console .. this variable is your console"
-    HDC mdc = GetDC(myConsole);                 // 4:05 "this is basicaly like a display variable or display function"
+	system("mode con cols=96 lines=24");        // Определение размера окошка
+	system("title Имитатор ssd1306");
+	CONSOLE_CURSOR_INFO inf = { 0 };            // Отключение курсора
+	inf.dwSize = 1;
+	inf.bVisible = false;
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &inf);
+	HWND myConsole = GetConsoleWindow();        // 3:30 "its gonna get your main console .. this variable is your console"
+	HDC mdc = GetDC(myConsole);                 // 4:05 "this is basicaly like a display variable or display function"
 	for (int i = 0; i < 100; i++)				// Это костыль. Без него почему-то первые ~10-20 точек удаляются
 	{
 		Buffer_RemovePixel(mdc, 0, 0);
 	}
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//////   Собственно код   /////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +103,7 @@ int main()
 	float fFov = 90.0f;													// theta (FOV)
 	float fAspectRatio = (float)64 / (float)128;						// a = h/w
 	float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * 3.14159f);		// f = 1/(tan(theta/2))
-		// Заполнение матрицы
+	// Заполнение матрицы
 	matProj.m[0][0] = fAspectRatio * fFovRad;
 	matProj.m[1][1] = fFovRad;
 	matProj.m[2][2] = fzFar / (fzFar - fzNear);
@@ -114,7 +114,7 @@ int main()
 
 	// Set up rotation matrices
 	mat4x4 matRotZ, matRotX;
-	fTheta++;
+	fTheta += 0.1;
 
 	// Rotation Z
 	matRotZ.m[0][0] = cosf(fTheta);
@@ -137,19 +137,29 @@ int main()
 	// Нарисовать треугольники
 	for (auto tri : meshCube.tris)
 	{
-		triangle triProjected, triTranslated;
+		triangle triProjected, triTranslated, triRotatedZ, triRotatedZX;
+
+		// Rotate in Z-Axis
+		MultiplyMatrixVector(tri.p[0], triRotatedZ.p[0], matRotZ);
+		MultiplyMatrixVector(tri.p[1], triRotatedZ.p[1], matRotZ);
+		MultiplyMatrixVector(tri.p[2], triRotatedZ.p[2], matRotZ);
+
+		// Rotate in X-Axis
+		MultiplyMatrixVector(triRotatedZ.p[0], triRotatedZX.p[0], matRotX);
+		MultiplyMatrixVector(triRotatedZ.p[1], triRotatedZX.p[1], matRotX);
+		MultiplyMatrixVector(triRotatedZ.p[2], triRotatedZX.p[2], matRotX);
 
 		// Offset into the screen
-		triTranslated = tri;
-		triTranslated.p[0].z = tri.p[0].z + 1.0f;
-		triTranslated.p[1].z = tri.p[1].z + 1.0f;
-		triTranslated.p[2].z = tri.p[2].z + 1.0f;
+		triTranslated = triRotatedZX;
+		triTranslated.p[0].z = triRotatedZX.p[0].z + 1.0f;
+		triTranslated.p[1].z = triRotatedZX.p[1].z + 1.0f;
+		triTranslated.p[2].z = triRotatedZX.p[2].z + 1.0f;
 
 		// Project triangles from 3D --> 2D
 		MultiplyMatrixVector(triTranslated.p[0], triProjected.p[0], matProj);
 		MultiplyMatrixVector(triTranslated.p[1], triProjected.p[1], matProj);
 		MultiplyMatrixVector(triTranslated.p[2], triProjected.p[2], matProj);
-		
+
 		// Scale into view
 		triProjected.p[0].x += 1.0f;
 		triProjected.p[0].y += 1.0f;
