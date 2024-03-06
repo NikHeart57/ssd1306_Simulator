@@ -79,7 +79,7 @@ void Buffer_SetLine(HDC hdc, float xa, float ya, float xb, float yb)
 	}
 
 	// Собственно функция
-	for (float x = xa; x <= xb; x += 0.1)
+	for (float x = xa; x <= xb; x += 1)
 	{
 		float temp = (x - xa) * (yb - ya) + ya * (xb - xa);		// Без temp почему-то не работает. Не получается сделать одну функцию, пришлось разбить на 2
 		int y = temp / (xb - xa);								// -1 и +0.9 - Эмперические поправки, с ними картинка болеее симетричная относительно центра

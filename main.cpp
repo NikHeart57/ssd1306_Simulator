@@ -70,114 +70,119 @@ int main()
 
 
 
-	// Инициализация куба и матрицы для проекции
-	mesh meshCube;
-	mat4x4 matProj;
-
-
-	// Pаполнение куба треугольниками
-	meshCube.tris = {
-		// SOUTH
-		{ 0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 0.0f },
-		{ 0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f },
-		// EAST                                                      
-		{ 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f },
-		{ 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f },
-		// NORTH                                                     
-		{ 1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f },
-		{ 1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f },
-		// WEST                                                      
-		{ 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f },
-		{ 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f },
-		// TOP                                                       
-		{ 0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f },
-		{ 0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 0.0f },
-		// BOTTOM                                                    
-		{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f },
-		{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f },
-	};
-
-	// Projection matrix
-	float fzNear = 0.1f;												// znear
-	float fzFar = 1000.0f;												// zfar
-	float fFov = 90.0f;													// theta (FOV)
-	float fAspectRatio = (float)64 / (float)128;						// a = h/w
-	float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * 3.14159f);		// f = 1/(tan(theta/2))
-	// Заполнение матрицы
-	matProj.m[0][0] = fAspectRatio * fFovRad;
-	matProj.m[1][1] = fFovRad;
-	matProj.m[2][2] = fzFar / (fzFar - fzNear);
-	matProj.m[3][2] = (-fzFar * fzNear) / (fzFar - fzNear);
-	matProj.m[2][3] = 1.0f;
-	matProj.m[3][3] = 0.0f;
-
-
-	// Set up rotation matrices
-	mat4x4 matRotZ, matRotX;
-	fTheta += 0.1;
-
-	// Rotation Z
-	matRotZ.m[0][0] = cosf(fTheta);
-	matRotZ.m[0][1] = sinf(fTheta);
-	matRotZ.m[1][0] = -sinf(fTheta);
-	matRotZ.m[1][1] = cosf(fTheta);
-	matRotZ.m[2][2] = 1;
-	matRotZ.m[3][3] = 1;
-
-	// Rotation X
-	matRotX.m[0][0] = 1;
-	matRotX.m[1][1] = cosf(fTheta * 0.5f);
-	matRotX.m[1][2] = sinf(fTheta * 0.5f);
-	matRotX.m[2][1] = -sinf(fTheta * 0.5f);
-	matRotX.m[2][2] = cosf(fTheta * 0.5f);
-	matRotX.m[3][3] = 1;
-
-
-
-	// Нарисовать треугольники
-	for (auto tri : meshCube.tris)
+	while(1)
 	{
-		triangle triProjected, triTranslated, triRotatedZ, triRotatedZX;
+		system("cls");
 
-		// Rotate in Z-Axis
-		MultiplyMatrixVector(tri.p[0], triRotatedZ.p[0], matRotZ);
-		MultiplyMatrixVector(tri.p[1], triRotatedZ.p[1], matRotZ);
-		MultiplyMatrixVector(tri.p[2], triRotatedZ.p[2], matRotZ);
+		// Инициализация куба и матрицы для проекции
+		mesh meshCube;
+		mat4x4 matProj;
 
-		// Rotate in X-Axis
-		MultiplyMatrixVector(triRotatedZ.p[0], triRotatedZX.p[0], matRotX);
-		MultiplyMatrixVector(triRotatedZ.p[1], triRotatedZX.p[1], matRotX);
-		MultiplyMatrixVector(triRotatedZ.p[2], triRotatedZX.p[2], matRotX);
 
-		// Offset into the screen
-		triTranslated = triRotatedZX;
-		triTranslated.p[0].z = triRotatedZX.p[0].z + 1.0f;
-		triTranslated.p[1].z = triRotatedZX.p[1].z + 1.0f;
-		triTranslated.p[2].z = triRotatedZX.p[2].z + 1.0f;
+		// Pаполнение куба треугольниками
+		meshCube.tris = {
+			// SOUTH
+			{ 0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 0.0f },
+			{ 0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f },
+			// EAST                                                      
+			{ 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f },
+			{ 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f },
+			// NORTH                                                     
+			{ 1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f },
+			{ 1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f },
+			// WEST                                                      
+			{ 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f },
+			{ 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f },
+			// TOP                                                       
+			{ 0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f },
+			{ 0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 0.0f },
+			// BOTTOM                                                    
+			{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f },
+			{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f },
+		};
 
-		// Project triangles from 3D --> 2D
-		MultiplyMatrixVector(triTranslated.p[0], triProjected.p[0], matProj);
-		MultiplyMatrixVector(triTranslated.p[1], triProjected.p[1], matProj);
-		MultiplyMatrixVector(triTranslated.p[2], triProjected.p[2], matProj);
+		// Projection matrix
+		float fzNear = 0.1f;												// znear
+		float fzFar = 1000.0f;												// zfar
+		float fFov = 90.0f;													// theta (FOV)
+		float fAspectRatio = (float)64 / (float)128;						// a = h/w
+		float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * 3.14159f);		// f = 1/(tan(theta/2))
+		// Заполнение матрицы
+		matProj.m[0][0] = fAspectRatio * fFovRad;
+		matProj.m[1][1] = fFovRad;
+		matProj.m[2][2] = fzFar / (fzFar - fzNear);
+		matProj.m[3][2] = (-fzFar * fzNear) / (fzFar - fzNear);
+		matProj.m[2][3] = 1.0f;
+		matProj.m[3][3] = 0.0f;
 
-		// Scale into view
-		triProjected.p[0].x += 1.0f;
-		triProjected.p[0].y += 1.0f;
-		triProjected.p[1].x += 1.0f;
-		triProjected.p[1].y += 1.0f;
-		triProjected.p[2].x += 1.0f;
-		triProjected.p[2].y += 1.0f;
-		triProjected.p[0].x *= 0.5f * (float)128.0;
-		triProjected.p[0].y *= 0.5f * (float)64.0;
-		triProjected.p[1].x *= 0.5f * (float)128.0;
-		triProjected.p[1].y *= 0.5f * (float)64.0;
-		triProjected.p[2].x *= 0.5f * (float)128.0;
-		triProjected.p[2].y *= 0.5f * (float)64.0;
 
-		// Отрисовка проекции
-		Buffer_SetTriangle(mdc, triProjected.p[0].x, triProjected.p[0].y,
-			triProjected.p[1].x, triProjected.p[1].y,
-			triProjected.p[2].x, triProjected.p[2].y);
+		// Set up rotation matrices
+		mat4x4 matRotZ, matRotX;
+		fTheta += 0.2;
+
+		// Rotation Z
+		matRotZ.m[0][0] = cosf(fTheta);
+		matRotZ.m[0][1] = sinf(fTheta);
+		matRotZ.m[1][0] = -sinf(fTheta);
+		matRotZ.m[1][1] = cosf(fTheta);
+		matRotZ.m[2][2] = 1;
+		matRotZ.m[3][3] = 1;
+
+		// Rotation X
+		matRotX.m[0][0] = 1;
+		matRotX.m[1][1] = cosf(fTheta * 0.5f);
+		matRotX.m[1][2] = sinf(fTheta * 0.5f);
+		matRotX.m[2][1] = -sinf(fTheta * 0.5f);
+		matRotX.m[2][2] = cosf(fTheta * 0.5f);
+		matRotX.m[3][3] = 1;
+
+
+
+		// Нарисовать треугольники
+		for (auto tri : meshCube.tris)
+		{
+			triangle triProjected, triTranslated, triRotatedZ, triRotatedZX;
+
+			// Rotate in Z-Axis
+			MultiplyMatrixVector(tri.p[0], triRotatedZ.p[0], matRotZ);
+			MultiplyMatrixVector(tri.p[1], triRotatedZ.p[1], matRotZ);
+			MultiplyMatrixVector(tri.p[2], triRotatedZ.p[2], matRotZ);
+
+			// Rotate in X-Axis
+			MultiplyMatrixVector(triRotatedZ.p[0], triRotatedZX.p[0], matRotX);
+			MultiplyMatrixVector(triRotatedZ.p[1], triRotatedZX.p[1], matRotX);
+			MultiplyMatrixVector(triRotatedZ.p[2], triRotatedZX.p[2], matRotX);
+
+			// Offset into the screen
+			triTranslated = triRotatedZX;
+			triTranslated.p[0].z = triRotatedZX.p[0].z + 3.0f;
+			triTranslated.p[1].z = triRotatedZX.p[1].z + 3.0f;
+			triTranslated.p[2].z = triRotatedZX.p[2].z + 3.0f;
+
+			// Project triangles from 3D --> 2D
+			MultiplyMatrixVector(triTranslated.p[0], triProjected.p[0], matProj);
+			MultiplyMatrixVector(triTranslated.p[1], triProjected.p[1], matProj);
+			MultiplyMatrixVector(triTranslated.p[2], triProjected.p[2], matProj);
+
+			// Scale into view
+			triProjected.p[0].x += 1.0f;
+			triProjected.p[0].y += 1.0f;
+			triProjected.p[1].x += 1.0f;
+			triProjected.p[1].y += 1.0f;
+			triProjected.p[2].x += 1.0f;
+			triProjected.p[2].y += 1.0f;
+			triProjected.p[0].x *= 0.5f * (float)128.0;
+			triProjected.p[0].y *= 0.5f * (float)64.0;
+			triProjected.p[1].x *= 0.5f * (float)128.0;
+			triProjected.p[1].y *= 0.5f * (float)64.0;
+			triProjected.p[2].x *= 0.5f * (float)128.0;
+			triProjected.p[2].y *= 0.5f * (float)64.0;
+
+			// Отрисовка проекции
+			Buffer_SetTriangle(mdc, triProjected.p[0].x, triProjected.p[0].y,
+				triProjected.p[1].x, triProjected.p[1].y,
+				triProjected.p[2].x, triProjected.p[2].y);
+		}
 	}
 
 
